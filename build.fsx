@@ -8,10 +8,10 @@ open Aardvark.Fake
 
 do Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
-DefaultSetup.install ["src/__SOLUTION_NAME__.sln"]
+DefaultSetup.install ["src/Turtle.sln"]
 
 Target "Run" (fun() ->
-    tracefn "exec: %d" (Shell.Exec "bin/Release/__PROJECT_NAME__.exe")
+    tracefn "exec: %d" (Shell.Exec "bin/Release/Turtle.exe")
 )
 
 Target "Test" (fun () ->

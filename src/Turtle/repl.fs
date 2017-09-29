@@ -20,7 +20,7 @@ module Repl =
 
     let fsi inStream outStream errStream =
         let argv = [| "FsiAnyCPU.exe" |]
-        let allArgs = Array.append argv [|"--noninteractive"|]
+        let allArgs = Array.append argv [|"--noninteractive";"-r:Turtle.exe";"-r:Aardvark.Base.dll"|]
 
         let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
         FsiEvaluationSession.Create(fsiConfig, allArgs, inStream, outStream, errStream) 

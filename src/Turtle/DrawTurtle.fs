@@ -179,24 +179,28 @@ module TurtleDrawingApp =
                 { kind = Script; name = "semui"; url = "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.js" }
             ]
             (div [] [
-                sg mm
-                div [attribute "class" "ui form"] [
-                        div [attribute "class" "field"] [
-                            label [attribute "class" "ui"] [ text "Fsi" ]
-                            textarea [onChange ( fun s -> FsiString s )] []
+                div [attribute "style" "height:75%"] [
+                    sg mm
+                ]
+                div [attribute "style" "height:25%" ] [
+                    div [attribute "class" "ui form"] [
+                            div [attribute "class" "field"] [
+                                label [attribute "class" "ui"] [ text "Fsi" ]
+                                textarea [onChange ( fun s -> FsiString s )] []
+                            ]
                         ]
-                    ]
-                div [attribute "class" "ui"] [
-                        button [attribute "class" "ui button"; onClick ( fun _ -> EvalFsi )] [text "do it"]
-                    ]
-                label [attribute "class" "ui"] [ text "Out" ]
-                div [attribute "class" "ui"] [
-                        Incremental.div AttributeMap.empty (SplitLines.linesToTexts mm.FsiOut)
-                    ]
-                label [attribute "class" "ui"] [ text "Err" ]
-                div [attribute "class" "ui"] [
-                        Incremental.div AttributeMap.empty (SplitLines.linesToTexts mm.FsiErr)
-                    ]
+                    div [attribute "class" "ui"] [
+                            button [attribute "class" "ui button"; onClick ( fun _ -> EvalFsi )] [text "do it"]
+                        ]
+                    label [attribute "class" "ui"] [ text "Out" ]
+                    div [attribute "class" "ui"] [
+                            Incremental.div AttributeMap.empty (SplitLines.linesToTexts mm.FsiOut)
+                        ]
+                    label [attribute "class" "ui"] [ text "Err" ]
+                    div [attribute "class" "ui"] [
+                            Incremental.div AttributeMap.empty (SplitLines.linesToTexts mm.FsiErr)
+                        ]
+                ]
                     
             ])
         

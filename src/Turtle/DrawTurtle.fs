@@ -61,6 +61,16 @@ module Shader =
 
 module TurtleDrawingApp =
     open Aardvark.Base.Incremental
+
+    module SplitLines =
+        open System.Text
+
+        let funnySeparator (lines : string) =
+            lines.Split([| lineSeparator |],StringSplitOptions.RemoveEmptyEntries)
+
+        let linesToTexts (ls : IMod<string>) : alist<DomNode<TurtleDrawingMsg>> =
+            let lines = ls |> Mod.map (funnySeparator >> Array.toList >> List.map text >> PList.ofList )
+            AList.ofMod lines
     
     let sg (mm : MTurtleDrawingModel) : DomNode<TurtleDrawingMsg> =
         
@@ -181,11 +191,11 @@ module TurtleDrawingApp =
                     ]
                 label [attribute "class" "ui"] [ text "Out" ]
                 div [attribute "class" "ui"] [
-                        Incremental.text mm.FsiOut
+                        Incremental.div AttributeMap.empty (SplitLines.linesToTexts mm.FsiOut)
                     ]
                 label [attribute "class" "ui"] [ text "Err" ]
                 div [attribute "class" "ui"] [
-                        Incremental.text mm.FsiErr
+                        Incremental.div AttributeMap.empty (SplitLines.linesToTexts mm.FsiErr)
                     ]
                     
             ])

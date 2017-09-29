@@ -6,6 +6,8 @@ open Aardvark.Base
 [<AutoOpen>]
 module Utils =
 
+    let lineSeparator = "((+))"
+
     let hsv2rgb (h : float) (s : float) (v : float) =
         let s = clamp 0.0 1.0 s
         let v = clamp 0.0 1.0 v

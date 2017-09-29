@@ -3,6 +3,7 @@
 open System
  
 open TurtleDomain
+open Turtle
 
 open Aardvark.Base
 open Aardvark.UI
@@ -14,11 +15,7 @@ module Repl =
 
     open System.IO
     open System.Text
-        
-    //let fsiStdOut = MVar.empty()
-    //let fsiStdErr = MVar.empty()
 
-    //let fsiResult = MVar.empty()
     let fsiInput = MVar.empty()
 
     let fsi inStream outStream errStream =
@@ -64,7 +61,6 @@ module Stuff =
                     
                     let result = Repl.evalCmds expr fsiSession
                     MVar.put stuff (sbOut.ToString(), sbErr.ToString(), result)    
-                    //MVar.put Repl.fsiResult result
             }
             
         Async.Start mk
@@ -72,13 +68,18 @@ module Stuff =
         let rec proc () =
             proclist {
                 let! (o,e,res) = Proc.Await (MVar.takeAsync stuff)
-                Log.warn "ERR: %s" e
-                Log.warn "OUT: %s" o
-                let cleane = String.replace "\r\n" "<br>" e
-                let cleano = String.replace "\r\n" "<br>" o
-                //let! res = Proc.Await (MVar.takeAsync Repl.fsiResult)
+                Log.line "ERR: %s" e
+                Log.line "OUT: %s" o
+                
+                let cleane = String.replace "\r\n" lineSeparator e
+                let cleano = String.replace "\r\n" lineSeparator o
+                do outStream.Flush()
+                do errStream.Flush()
                 yield FsiOut cleano
                 yield FsiErr cleane
+                do sbOut.Clear() |> ignore
+                do sbErr.Clear() |> ignore
+
                 yield CmdSequence res
                 yield! proc()
             }

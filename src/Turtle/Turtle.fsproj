@@ -55,6 +55,16 @@
     </Otherwise>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <opdata Include="..\..\stuff\FSharp.Core.optdata" />
+      <sigdata Include="..\..\stuff\FSharp.Core.sigdata" />
+      <fsianycpu Include="..\..\stuff\fsi\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(opdata)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(sigdata)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(fsianycpu)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -63,8 +73,6 @@
   </Target>
   -->
   <ItemGroup>
-    <None Include="FSharp.Core.optdata" />
-    <None Include="FSharp.Core.sigdata" />
     <Compile Include="Utils.fs" />
     <Compile Include="Turtle.fs" />
     <Compile Include="DrawTurtleDomain.fs" />

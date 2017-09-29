@@ -22,7 +22,7 @@ module Repl =
     let fsiInput = MVar.empty()
 
     let fsi inStream outStream errStream =
-        let argv = [| @"C:\Program Files (x86)\Microsoft SDKs\F#\4.0\Framework\v4.0\FsiAnyCPU.exe" |]
+        let argv = [| "FsiAnyCPU.exe" |]
         let allArgs = Array.append argv [|"--noninteractive"|]
 
         let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()

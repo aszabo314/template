@@ -9,6 +9,8 @@ open Aardvark.SceneGraph
 
 open Turtle
 open TurtleDomain
+open TurtleFsi
+
 
 module Shader =
     open FShade
@@ -59,8 +61,8 @@ module Shader =
 
 module TurtleDrawingApp =
     open Aardvark.Base.Incremental
-
-    let view (mm : MTurtleDrawingModel) : DomNode<TurtleDrawingMsg> =
+    
+    let sg (mm : MTurtleDrawingModel) : DomNode<TurtleDrawingMsg> =
         
         let turtleSg =
             let center =
@@ -160,18 +162,52 @@ module TurtleDrawingApp =
         let attributes = AttributeMap.ofList [ attribute "style" "width:100%; height: 100%"; attribute "data-samples" "8"]
         CameraController.controlledControl mm.Camera CameraMsg frustum attributes sg
         
+    let view (mm : MTurtleDrawingModel) : DomNode<TurtleDrawingMsg> =
+        require 
+            [ 
+                { kind = Stylesheet; name = "semui"; url = "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.css" }
+                { kind = Script; name = "semui"; url = "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.js" }
+            ]
+            (div [] [
+                sg mm
+                div [attribute "class" "ui form"] [
+                        div [attribute "class" "field"] [
+                            label [attribute "class" "ui"] [ text "Fsi" ]
+                            textarea [onChange ( fun s -> FsiString s )] []
+                        ]
+                    ]
+                div [attribute "class" "ui"] [
+                        button [attribute "class" "ui button"; onClick ( fun _ -> EvalFsi )] [text "do it"]
+                    ]
+                label [attribute "class" "ui"] [ text "Out" ]
+                div [attribute "class" "ui"] [
+                        Incremental.text mm.FsiOut
+                    ]
+                label [attribute "class" "ui"] [ text "Err" ]
+                div [attribute "class" "ui"] [
+                        Incremental.text mm.FsiErr
+                    ]
+                    
+            ])
+        
+    let rec updateMany (msgs : list<TurtleDrawingMsg>) m =
+        match msgs with
+        | [] -> m
+        | msg :: rest -> 
+            updateMany rest (update m msg)
 
-    let update (m : TurtleDrawingModel) (msg : TurtleDrawingMsg) =
+    and update (m : TurtleDrawingModel) (msg : TurtleDrawingMsg) =
         match msg with
         | Step -> TurtleDrawing.step m
         | Pitch a -> TurtleDrawing.pitchTurtle a m
         | Yaw a -> TurtleDrawing.yawTurtle a m
         | Roll a -> TurtleDrawing.rollTurtle a m
         | Teleport p -> TurtleDrawing.teleportTurtle p m
+        
         | Speed s -> TurtleDrawing.setSpeed s m
-
-        | GoFasterBy s -> TurtleDrawing.setSpeed (m.Turtle.Speed + s) m
-        | GoSlowerBy s -> TurtleDrawing.setSpeed (m.Turtle.Speed - s) m
+        | AddSpeed s -> TurtleDrawing.setSpeed (m.Turtle.Speed + s) m
+        | MultiplySpeed s -> TurtleDrawing.setSpeed (m.Turtle.Speed * s) m
+        | MapSpeed f -> TurtleDrawing.setSpeed (m.Turtle.Speed |> f) m
 
         | Draw d -> TurtleDrawing.setDrawing d m
         | Color c -> TurtleDrawing.setColor c m
@@ -180,10 +216,18 @@ module TurtleDrawingApp =
         | Reset -> TurtleDrawing.reset m
 
         | CameraMsg cm -> TurtleDrawing.cameraMsg cm m
+        | CmdSequence cmds -> updateMany cmds m
 
-    let threads (m : TurtleDrawingModel)= 
-        CameraController.threads m.Camera |> ThreadPool.map CameraMsg
-
+        | EvalFsi -> 
+            MVar.put Repl.fsiInput m.FsiString
+            m
+        | FsiOut s -> 
+            { m with FsiOut = s }
+        | FsiErr s -> 
+            { m with FsiErr = s }
+        | FsiString s -> 
+            { m with FsiString = s }
+        
     let doIt1 =
         [
             Step
@@ -202,25 +246,30 @@ module TurtleDrawingApp =
         ]
 
     let doIt =
-        let maxIter = 1000
-        let angleStep = (5.0 / float maxIter) * Constant.PiTimesTwo
-        let speedStep = (1.0 / float maxIter)
+        let maxIter = 500
+        let angleStep = (5.0 / float 1000) * Constant.PiTimesTwo
+        let speedStep = 1.0 - (1.0 / float 1000)
         [
-            yield Speed 1.0
-            yield Color ((rgb2hsv 0.0 1.0 0.5).ToC4f())
+            yield Speed 0.1
+            yield Color ((hsv2rgb 0.0 1.0 0.5).ToC4f())
             for i in 0 .. maxIter-1 do
                 yield Step
                 yield Yaw angleStep
                 yield Roll angleStep
-                yield GoSlowerBy speedStep
-                yield Color ((rgb2hsv (float i / float maxIter) 1.0 0.5 ).ToC4f())
+                //yield Pitch angleStep
+                yield MultiplySpeed speedStep
+                yield Color ((hsv2rgb (float i / float 100) 1.0 0.5 ).ToC4f())
         ]
 
-    let rec updateMany (msgs : list<TurtleDrawingMsg>) m =
-        match msgs with
-        | [] -> m
-        | msg :: rest -> 
-            updateMany rest (update m msg)
+
+    let threads (m : TurtleDrawingModel)= 
+        let cameraThread = CameraController.threads m.Camera |> ThreadPool.map CameraMsg
+        let fsiThread = 
+            let procs = Stuff.fsiThread
+            ThreadPool.start procs ThreadPool.empty
+
+        cameraThread |> ThreadPool.union fsiThread
+            
 
     let app =
         {

@@ -22,6 +22,10 @@ type TurtleDrawingModel =
         Lines : plist<Line>
 
         Camera : CameraControllerState
+
+        FsiString : string
+        FsiOut : string
+        FsiErr : string
     }
 
 type TurtleDrawingMsg =
@@ -31,8 +35,9 @@ type TurtleDrawingMsg =
     | Roll      of float
     | Teleport  of V3d
     | Speed     of float
-    | GoFasterBy of float
-    | GoSlowerBy of float
+    | AddSpeed  of float
+    | MultiplySpeed of float
+    | MapSpeed  of (float -> float)
 
     | Draw      of bool
     | Color     of C4f
@@ -40,7 +45,13 @@ type TurtleDrawingMsg =
 
     | Reset
 
-    | CameraMsg      of CameraController.Message
+    | CameraMsg   of CameraController.Message
+
+    | CmdSequence of list<TurtleDrawingMsg>
+    | FsiString   of string
+    | EvalFsi
+    | FsiOut      of string
+    | FsiErr      of string
 
 module TurtleDrawing =
     
@@ -52,6 +63,9 @@ module TurtleDrawing =
             Turtle = initialTurtle
             Lines = PList.empty
             Camera = { CameraController.initial with view = CameraView.lookAt (V3d.OII * 6.0) V3d.OOO V3d.OOI }
+            FsiString = ""
+            FsiOut = ""
+            FsiErr = ""
         }
 
     let pitchTurtle angle m =

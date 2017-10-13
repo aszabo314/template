@@ -30,18 +30,18 @@ type TurtleDrawingModel =
 
 type TurtleDrawingMsg =
     | Step
-    | Pitch     of float
-    | Yaw       of float
-    | Roll      of float
-    | Teleport  of V3d
-    | Speed     of float
-    | AddSpeed  of float
+    | Pitch         of float
+    | Yaw           of float
+    | Roll          of float
+    | Teleport      of V3d
+    | Speed         of float
+    | AddSpeed      of float
     | MultiplySpeed of float
-    | MapSpeed  of (float -> float)
+    | MapSpeed      of (float -> float)
 
-    | Draw      of bool
-    | Color     of C4f
-    | Thickness of float
+    | Draw          of bool
+    | Color         of C4f
+    | Thickness     of float
 
     | Reset
 

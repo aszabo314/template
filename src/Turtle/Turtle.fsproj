@@ -60,10 +60,12 @@
       <opdata Include="..\..\stuff\FSharp.Core.optdata" />
       <sigdata Include="..\..\stuff\FSharp.Core.sigdata" />
       <fsianycpu Include="..\..\stuff\fsi\*.*" />
+      <script Include="..\..\stuff\startupscript.fsx" />
     </ItemGroup>
     <Copy SourceFiles="@(opdata)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(sigdata)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(fsianycpu)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(script)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

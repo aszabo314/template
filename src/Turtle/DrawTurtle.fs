@@ -78,7 +78,7 @@ module TurtleDrawingApp =
             let center =
                 IndexedGeometryPrimitives.solidSubdivisionSphere 
                     (Sphere3d.FromCenterAndRadius(V3d.OOO, 0.25))
-                    4
+                    2
                     C4b.Red
                 |> Sg.ofIndexedGeometry
                 |> Sg.shader {
@@ -191,6 +191,7 @@ module TurtleDrawingApp =
                         ]
                     div [attribute "class" "ui"] [
                             button [attribute "class" "ui button"; onClick ( fun _ -> EvalFsi )] [text "do it"]
+                            button [attribute "class" "ui button"; onClick ( fun _ -> Reset )] [text "reset"]
                         ]
                     label [attribute "class" "ui"] [ text "Out" ]
                     div [attribute "class" "ui"] [
@@ -274,6 +275,32 @@ module TurtleDrawingApp =
                 yield MultiplySpeed speedStep
                 yield Color ((hsv2rgb (float i / float 100) 1.0 0.5 ).ToC4f())
         ]
+
+    let doIt3 =
+        let rec koch i = 
+            if i > 0 then
+                [
+                    yield! koch (i-1)
+                    yield Step
+                    yield Yaw 60.0
+                    yield! koch (i-1)
+                    yield Step
+                    yield Yaw -120.0
+                    yield! koch (i-1)
+                    yield Step
+                    yield Yaw 60.0
+                    yield! koch (i-1)
+                ]
+            else
+                []
+        
+        [
+            let i = 5
+            yield! koch i
+            yield Step
+        ]
+                
+
 
 
     let threads (m : TurtleDrawingModel)= 

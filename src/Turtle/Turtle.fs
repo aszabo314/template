@@ -54,13 +54,13 @@ module Turtle =
         { turtle with Right = r; Up = u; Forward = fw }
 
     let pitch angle turtle =
-        turtle |> rotate (M44d.RotationX angle)
+        turtle |> rotate (M44d.RotationX (Constant.RadiansPerDegree * angle))
 
     let yaw angle turtle =
-        turtle |> rotate (M44d.RotationZ angle)
+        turtle |> rotate (M44d.RotationZ (Constant.RadiansPerDegree * angle))
 
     let roll angle turtle =
-        turtle |> rotate (M44d.RotationY angle)
+        turtle |> rotate (M44d.RotationY (Constant.RadiansPerDegree * angle))
 
     let teleport pos turtle =
         { turtle with Position = pos }
